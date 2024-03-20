@@ -123,11 +123,18 @@ class HBNBCommand(cmd.Cmd):
         Param syntax: <key name>=<value>
         """
         try:
-            if args == "":
-                raise SyntaxError()
-            lists = args.split(" ")
-            storage = eval("{}()".format(lists[0]))
-            for attr in lists[1:]:
+            if not args:
+                raise SyntaxError("** class name missing **")
+            my_list = arg.split(" ")
+            class_name = my_list[0]
+
+            class_obj = globals().get(class_name)
+
+            if not class_obj():
+                raise NameError("** class doesn't exist **")
+
+            obj = class_obj()
+            for attr in my_list[1:]:
                 my_att = attr.split('=')
                 try:
                     casted = HBNBCommand.verify_attribute(my_att[1])
@@ -135,13 +142,13 @@ class HBNBCommand(cmd.Cmd):
                     continue
                 if not casted:
                     continue
-                setattr(storage, my_att[0], casted)
-            storage.save()
+                setattr(obj, my_att[0], casted)
+            obj.save()
             print("{}".format(obj.id))
-        except SyntaxError:
-            print("** class name missing **")
+        except SyntaxError as e:
+            print(e)
         except NameError as e:
-            print("** class doesn't exist **")
+            print(e)
 
     def help_create(self):
         """ Help information for the create method """
@@ -219,13 +226,18 @@ class HBNBCommand(cmd.Cmd):
 
         args = shlex.split(arg)
         obj_list = []
+        obj_dict = {}
         if len(args) == 0:
             obj_dict = storage.all()
-        elif args[0] in classes:
-            obj_dict = storage.all(classes[args[0]])
         else:
-            print("** class doesn't exist **")
-            return False
+            fir = args[0]
+            if fir in classes:
+                obj_dict = storage.all()
+                obj_dict = {key: obj for key, obj in obj_dict.items()
+                        if isinstance(obj, classes[fir])}
+            else:
+                print("** class doesn't exist **")
+                return None
         for key in obj_dict:
             obj_list.append(str(obj_dict[key]))
         print("[", end="")
