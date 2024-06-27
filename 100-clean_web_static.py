@@ -1,8 +1,9 @@
-t deletes old archives"""
+#!/usr/bin/python3
+"""A module that deletes old archives"""
 from fabric.api import env, lcd, local, cd, run
 import os
 
-env.hosts = ['3.90.70.66', '100.26.231.45']
+env.hosts = ['52.91.101.229', '54.226.6.154']
 
 
 def do_clean(number=0):
